@@ -1,0 +1,26 @@
+services:
+  postgres:
+    # pgvector image bundles Postgres + the pgvector extension preinstalled.
+    # Postgres FTS (BM25-like) is built in -- no extra extension needed.
+    # We don't actually use vectors yet; pgvector is here for parity with
+    # the InsightFinder stack so adding semantic features later is trivial.
+    image: pgvector/pgvector:pg16
+    container_name: workflow-automator-postgres
+    environment:
+      POSTGRES_USER: workflow
+      POSTGRES_PASSWORD: workflow
+      POSTGRES_DB: workflow_automator
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workflow -d workflow_automator"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
