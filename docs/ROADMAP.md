@@ -12,7 +12,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 
 ## Workflow engine
 - [x] **6. Lead intake + URL fetcher** — `POST /leads` validates URL (rejects file://, blocks SSRF targets via DNS resolution + private/loopback/link-local check), fetches with size/time caps via httpx, parses title/description/canonical with selectolax, upserts companies + inserts leads, caches raw HTML to data/raw/<domain>/<sha>.html. Verified end-to-end against stripe.com (581 KB / 1.5s) and anthropic.com (258 KB / 1.3s)
-- [ ] **7. Research agent** — Brave Search wrapper + LLM extraction → structured `{industry, size, recent_news, key_people, tech_stack}` JSON
+- [x] **7. Research agent** — `POST /research/{lead_id}`: html_to_text via selectolax, optional Brave Search (no-op when key blank), gpt-4o-mini extraction with strict JSON-schema response format. Tested against stripe.com → industry: fintech, size: 1000+, Patrick Collison identified, real news. ~$0.0007 / call (3126 in / 411 out tokens)
 - [ ] **8. Qualify agent** — BANT scoring (Budget / Authority / Need / Timing) with reasoning + `qualified` boolean
 - [ ] **9. Personalize agent** — outreach email + subject with `[research.*]` citation markers; tone toggle (technical / executive / casual)
 - [ ] **10. Mocked actions layer** — fake CRM card, fake calendar slot, fake email send; emitted as SSE events with believable timing
@@ -23,7 +23,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 
 ---
 
-**Currently:** finished step 6.
+**Currently:** finished step 7.
 
 ## Notes captured during planning
 

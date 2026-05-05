@@ -16,6 +16,8 @@ dependencies = [
     "psycopg[binary]>=3.2",
     # Ingestion / scraping
     "selectolax>=0.3",     # fast HTML parsing (Modest engine, C-based)
+    "tiktoken>=0.7",       # OpenAI token counting for budgeting prompts
+    "openai>=1.50",        # gpt-4o-mini for research / qualify / personalize
 ]
 
 [dependency-groups]
