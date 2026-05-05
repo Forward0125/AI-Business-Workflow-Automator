@@ -166,6 +166,56 @@ export type WorkflowEvent =
   | RunFailedEvent
   | StreamEndEvent
 
+// ─── Dashboard ───────────────────────────────────────────────────
+
+export interface KPIs {
+  leads_24h:      number
+  leads_total:    number
+  runs_total:     number
+  runs_last_7d:   number
+  active_runs:    number
+  avg_cost_usd:   number | null
+  qualified_rate: number | null
+}
+
+export interface TimeseriesPoint {
+  day:       string
+  runs:      number
+  qualified: number
+  avg_cost:  number | null
+}
+
+export interface TopLead {
+  lead_id:        number
+  domain:         string | null
+  industry:       string | null
+  input_url:      string
+  run_id:         number | null
+  run_status:     string | null
+  qualified:      boolean | null
+  composite:      number | null
+  email_subject:  string | null
+  created_at:     string | null
+}
+
+export type AlertSeverity = 'info' | 'warning' | 'error'
+
+export interface AlertRow {
+  id:         number
+  severity:   AlertSeverity
+  title:      string
+  body:       string | null
+  source:     string | null
+  created_at: string | null
+}
+
+export interface DashboardSummary {
+  kpis:       KPIs
+  timeseries: TimeseriesPoint[]
+  top_leads:  TopLead[]
+  alerts:     AlertRow[]
+}
+
 // ─── Endpoints ───────────────────────────────────────────────────
 
 export interface CreateRunBody {
@@ -187,6 +237,8 @@ export const api = {
 
   getWorkflowRun: (runId: number) =>
     request<RunInfo>(`/workflows/runs/${runId}`),
+
+  dashboardSummary: () => request<DashboardSummary>('/dashboard/summary'),
 
   /** Async-iterable over typed workflow events. */
   async *streamWorkflowRun(

@@ -27,6 +27,7 @@ from typing import Any, Awaitable, Callable
 
 from app import db
 from app.actions import mocked
+from app.alerts import emit_alert
 from app.fetch import FetchError
 from app.ingest.lead import intake_lead
 from app.jobs import broker
@@ -257,6 +258,17 @@ async def _execute(
     total_tokens_in  += qualification.tokens_in
     total_tokens_out += qualification.tokens_out
 
+    # Surface notably low-fit leads to the dashboard's alert feed --
+    # the rep would want to skim these for "is this even worth a touch?".
+    if qualification.composite < 0.30:
+        await emit_alert(
+            severity="info",
+            title=f"Low-fit lead detected (composite {qualification.composite:.2f})",
+            body=f"{lead_result.domain} -- {qualification.reasoning[:300]}",
+            source="qualify",
+            metadata={"run_id": run_id, "lead_id": lead_result.lead_id},
+        )
+
     # ─── 5. Personalize ───────────────────────────────────────
     qual_for_prompt = {
         "budget":    qualification.budget,
@@ -397,6 +409,13 @@ async def start_pipeline(
             await broker.emit(run_id, {
                 "type": "run.failed", "run_id": run_id, "error": str(exc),
             })
+            await emit_alert(
+                severity="error",
+                title=f"Workflow run #{run_id} failed",
+                body=str(exc)[:500],
+                source="pipeline",
+                metadata={"run_id": run_id, "url": url},
+            )
         finally:
             await broker.end(run_id)
 

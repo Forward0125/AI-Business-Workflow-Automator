@@ -1,0 +1,49 @@
+# Render blueprint for the AI Business Workflow Automator.
+#
+# Render auto-creates this service when you "New > Blueprint" from
+# the connected repo. After first deploy, set the SECRET env vars in
+# the Render dashboard:
+#   DATABASE_URL          (your Neon connection string)
+#   OPENAI_API_KEY        (platform.openai.com)
+#   API_CORS_ORIGINS      (your Vercel URL, e.g. https://workflow-automator-xxx.vercel.app)
+#
+# Render rebuilds + redeploys on every push to `main`.
+
+services:
+  - type: web
+    name: workflow-automator-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: api
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      # Secrets -- set via dashboard, never commit.
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: API_CORS_ORIGINS
+        sync: false
+
+      # Defaults baked in here.
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: GENERATOR_MODEL
+        value: "gpt-4o-mini"
+      - key: EVALUATOR_MODEL
+        value: "gpt-4o-mini"
+      - key: DAILY_SPEND_CAP_USD
+        value: "5.0"
+      - key: WORKFLOW_RUNS_PER_HOUR
+        value: "5"
+      - key: MAX_FETCH_BYTES
+        value: "5242880"
+      - key: FETCH_TIMEOUT_SECONDS
+        value: "30"
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: HTTP_USER_AGENT
+        value: "AIBusinessWorkflowAutomator/0.1 (+https://github.com/Forward0125/AI-Business-Workflow-Automator)"

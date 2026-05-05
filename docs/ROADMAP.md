@@ -19,11 +19,11 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 
 ## Frontend (3 surfaces)
 - [x] **11. Lead page** — URL form (example chips + tone radio), React Flow DAG laid out 4×2 with live SSE-driven node coloring, four result panels (research with tech-stack / key-people / news; BANT bars; outreach email with citation chips and copy button; mocked CRM/Calendar/Email cards). All cards stream their data straight from step.completed event metadata — no extra fetches. Verified end-to-end through the Next.js proxy
-- [ ] **12. Dashboard + deploy** — leads-processed KPIs, qualified-rate chart, top industries; Render + Vercel deploy with cost guards
+- [x] **12. Dashboard + deploy infra** — `GET /dashboard/summary` rolls up KPIs / 7-day timeseries / top leads / alerts in one round-trip; alerts auto-emitted on pipeline failures + low-fit qualifications. Frontend polls every 5s, renders Recharts dual-axis chart, top-leads table with status pills, alerts panel with relative timestamps. Dockerfile + render.yaml + DEPLOY.md ready — Render+Vercel walkthrough mirrors InsightFinder. Verified live data: 4 leads, 25% qualified rate, $0.0004 avg cost / run
 
 ---
 
-**Currently:** finished step 11.
+**Currently:** finished step 12. **All 12 steps done — ready to deploy.**
 
 ## Notes captured during planning
 

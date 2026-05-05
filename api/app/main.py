@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import db
-from app.api import health, leads, personalize, qualify, research, workflows
+from app.api import dashboard, health, leads, personalize, qualify, research, workflows
 from app.logging import configure_logging, get_logger
 from app.settings import settings
 
@@ -57,3 +57,4 @@ app.include_router(research.router)
 app.include_router(qualify.router)
 app.include_router(personalize.router)
 app.include_router(workflows.router)
+app.include_router(dashboard.router)
