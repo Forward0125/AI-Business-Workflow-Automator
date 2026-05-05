@@ -216,12 +216,16 @@ async def _execute(
             fetched_bytes=lead_result.fetched_bytes,
         )
         return r, {
-            "industry":  r.payload.get("industry"),
-            "size":      r.payload.get("size_estimate"),
-            "headline":  (r.payload.get("headline") or "")[:140],
-            "tokens_in":  r.tokens_in,
-            "tokens_out": r.tokens_out,
-            "cost_usd":  round(r.cost_usd, 6),
+            "industry":     r.payload.get("industry"),
+            "size":         r.payload.get("size_estimate"),
+            "headline":     (r.payload.get("headline") or "")[:200],
+            "summary":      r.payload.get("summary"),
+            "tech_stack":   r.payload.get("tech_stack", []),
+            "key_people":   r.payload.get("key_people", []),
+            "recent_news":  r.payload.get("recent_news", []),
+            "tokens_in":    r.tokens_in,
+            "tokens_out":   r.tokens_out,
+            "cost_usd":     round(r.cost_usd, 6),
         }
 
     research_result = await _run_step(run_id, "research", _research_step)
@@ -279,6 +283,7 @@ async def _execute(
             "email_draft_id":    draft_id,
             "tone":              d.tone,
             "subject":           d.subject,
+            "body":              d.body,
             "cited_findings":    d.cited_findings,
             "unknown_citations": d.unknown_citations,
             "tokens_in":         d.tokens_in,
@@ -307,6 +312,7 @@ async def _execute(
             "platform":    result.payload.get("platform"),
             "deal_stage":  result.payload.get("deal_stage"),
             "score":       result.payload.get("score"),
+            "payload":     result.payload,
         }
 
     await _run_step(run_id, "crm", _crm_step)
@@ -322,6 +328,7 @@ async def _execute(
             "duration_ms":  result.duration_ms,
             "platform":     result.payload.get("platform"),
             "scheduled_at": result.payload.get("scheduled_at"),
+            "payload":      result.payload,
         }
 
     await _run_step(run_id, "calendar", _calendar_step)
@@ -340,6 +347,7 @@ async def _execute(
             "platform":     result.payload.get("platform"),
             "scheduled_at": result.payload.get("scheduled_at"),
             "message_id":   result.payload.get("message_id"),
+            "payload":      result.payload,
         }
 
     await _run_step(run_id, "email", _email_step)

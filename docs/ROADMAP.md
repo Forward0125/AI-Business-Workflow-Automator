@@ -18,12 +18,12 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 - [x] **10. Mocked actions + workflow orchestrator** — `app/pipeline.py` runs all 8 steps end-to-end with state in workflow_runs/_steps and SSE events through the JobBroker. Endpoints: `POST /workflows/runs` (returns run_id immediately, spawns asyncio task), `GET /workflows/runs/{id}` (snapshot), `GET .../events` (SSE with replay-on-connect). Migration 0002 made workflow_runs.lead_id nullable. Mocked CRM/Calendar/Email sleep 300-700ms and write demo-mode JSON. Verified end-to-end on vercel.com — composite=0.25 (correctly not qualified), $0.0007 total.
 
 ## Frontend (3 surfaces)
-- [ ] **11. Lead page** — URL form, live workflow DAG (React Flow), three result cards (research / qualification / email draft) streaming in
+- [x] **11. Lead page** — URL form (example chips + tone radio), React Flow DAG laid out 4×2 with live SSE-driven node coloring, four result panels (research with tech-stack / key-people / news; BANT bars; outreach email with citation chips and copy button; mocked CRM/Calendar/Email cards). All cards stream their data straight from step.completed event metadata — no extra fetches. Verified end-to-end through the Next.js proxy
 - [ ] **12. Dashboard + deploy** — leads-processed KPIs, qualified-rate chart, top industries; Render + Vercel deploy with cost guards
 
 ---
 
-**Currently:** finished step 10.
+**Currently:** finished step 11.
 
 ## Notes captured during planning
 
