@@ -166,6 +166,25 @@ export type WorkflowEvent =
   | RunFailedEvent
   | StreamEndEvent
 
+// ─── Workflow runs list ──────────────────────────────────────────
+
+export interface WorkflowRunListItem {
+  run_id:         number
+  status:         RunStatus
+  started_at:     string | null
+  finished_at:    string | null
+  duration_ms:    number | null
+  total_cost_usd: number | null
+  created_at:     string | null
+  lead_id:        number | null
+  input_url:      string | null
+  domain:         string | null
+  industry:       string | null
+  composite:      number | null
+  qualified:      boolean | null
+  email_subject:  string | null
+}
+
 // ─── Dashboard ───────────────────────────────────────────────────
 
 export interface KPIs {
@@ -237,6 +256,14 @@ export const api = {
 
   getWorkflowRun: (runId: number) =>
     request<RunInfo>(`/workflows/runs/${runId}`),
+
+  listWorkflowRuns: (opts: { status?: RunStatus | 'all'; limit?: number } = {}) => {
+    const params = new URLSearchParams()
+    if (opts.status && opts.status !== 'all') params.set('status', opts.status)
+    if (opts.limit != null) params.set('limit', String(opts.limit))
+    const qs = params.toString()
+    return request<WorkflowRunListItem[]>(`/workflows/runs${qs ? `?${qs}` : ''}`)
+  },
 
   dashboardSummary: () => request<DashboardSummary>('/dashboard/summary'),
 

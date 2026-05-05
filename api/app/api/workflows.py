@@ -66,7 +66,90 @@ class RunInfo(BaseModel):
     steps:             list[StepInfo]
 
 
+class RunListItem(BaseModel):
+    """Compact row for the /workflows list view -- joins everything
+    the table needs to render in a single round-trip."""
+    run_id:         int
+    status:         str
+    started_at:     Any | None = None
+    finished_at:    Any | None = None
+    duration_ms:    int   | None = None
+    total_cost_usd: float | None = None
+    created_at:     Any | None = None
+    lead_id:        int | None = None
+    input_url:      str | None = None
+    domain:         str | None = None
+    industry:       str | None = None
+    composite:      float | None = None
+    qualified:      bool  | None = None
+    email_subject:  str   | None = None
+
+
 # ─── Endpoints ───────────────────────────────────────────────────
+
+
+@router.get("/runs", response_model=list[RunListItem])
+async def list_runs(
+    status: str | None = None,
+    limit:  int = 30,
+) -> list[RunListItem]:
+    """Recent workflow runs, newest first. Optional status filter."""
+    if limit < 1 or limit > 200:
+        raise HTTPException(400, "limit must be in 1..200")
+
+    where_sql = ""
+    params: list[Any] = []
+    if status:
+        if status not in ("queued", "running", "success", "failed", "cancelled"):
+            raise HTTPException(400, f"invalid status: {status}")
+        params.append(status)
+        where_sql = f"WHERE wr.status = ${len(params)}::workflow_status"
+
+    params.append(limit)
+    sql = f"""
+        SELECT
+            wr.id            AS run_id,
+            wr.status::text  AS status,
+            wr.started_at,
+            wr.finished_at,
+            wr.total_cost_usd,
+            wr.created_at,
+            EXTRACT(EPOCH FROM (wr.finished_at - wr.started_at)) * 1000 AS duration_ms,
+            l.id             AS lead_id,
+            l.input_url,
+            c.domain,
+            c.industry,
+            q.composite_score::float AS composite,
+            q.qualified,
+            ed.subject       AS email_subject
+        FROM workflow_runs wr
+        LEFT JOIN leads l        ON l.id = wr.lead_id
+        LEFT JOIN companies c    ON c.id = l.company_id
+        LEFT JOIN qualifications q ON q.run_id = wr.id
+        LEFT JOIN LATERAL (
+            SELECT subject FROM email_drafts
+            WHERE run_id = wr.id ORDER BY created_at DESC LIMIT 1
+        ) ed ON TRUE
+        {where_sql}
+        ORDER BY wr.created_at DESC
+        LIMIT ${len(params)}
+    """
+    async with db.get_conn() as conn:
+        rows = await conn.fetch(sql, *params)
+    return [
+        RunListItem(
+            run_id=r["run_id"], status=r["status"],
+            started_at=r["started_at"], finished_at=r["finished_at"],
+            duration_ms=int(r["duration_ms"]) if r["duration_ms"] is not None else None,
+            total_cost_usd=float(r["total_cost_usd"]) if r["total_cost_usd"] is not None else None,
+            created_at=r["created_at"],
+            lead_id=r["lead_id"], input_url=r["input_url"],
+            domain=r["domain"], industry=r["industry"],
+            composite=r["composite"], qualified=r["qualified"],
+            email_subject=r["email_subject"],
+        )
+        for r in rows
+    ]
 
 
 @router.post("/runs", response_model=CreateRunResponse)
