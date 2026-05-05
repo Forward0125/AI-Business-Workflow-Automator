@@ -7,7 +7,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 - [x] **1. Scaffold project folder** — README, .gitignore, .gitattributes, .env.example, docker-compose, init SQL, verify script, roadmap
 - [x] **2. Postgres + pgvector running** — fresh Neon project verified (PG 16.12); `pgvector` 0.8.0 + `pg_trgm` 1.6 loaded; vector literal round-trips
 - [x] **3. FastAPI backend skeleton** — pydantic-settings, asyncpg + pgvector adapters, structlog, `/health` returns `{"status":"ok","db":"ok"}` against Neon
-- [ ] **4. Database schema + migrations** — companies / leads / workflow_runs / workflow_steps / research_results / qualifications / email_drafts / mocked_actions
+- [x] **4. Database schema + migrations** — 9 tables, 2 enums, 27 indexes (incl. GIN JSONB on `research_results.payload`), applied to Neon via Alembic
 - [ ] **5. Next.js frontend skeleton** — design tokens copied from InsightFinder, sidebar (Lead / Workflows / Dashboard), `/api/*` proxy
 
 ## Workflow engine
@@ -23,7 +23,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 
 ---
 
-**Currently:** finished step 3.
+**Currently:** finished step 4.
 
 ## Notes captured during planning
 
