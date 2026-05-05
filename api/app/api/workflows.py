@@ -17,7 +17,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from app import pipeline
+from app import db, pipeline
 from app.jobs import END_EVENT, broker
 from app.logging import get_logger
 from app.personalize.draft import ALLOWED_TONES, DEFAULT_TONE
