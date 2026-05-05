@@ -11,7 +11,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 - [x] **5. Next.js frontend skeleton** — Next 16 + Tailwind, design tokens copied from InsightFinder, sidebar (Lead / Workflows / Dashboard), 3 route shells, `/health` probe wired, vercel.json pinned
 
 ## Workflow engine
-- [ ] **6. Lead intake + URL fetcher** — `POST /leads`; httpx + selectolax fetch with size/time caps; cached to data/raw
+- [x] **6. Lead intake + URL fetcher** — `POST /leads` validates URL (rejects file://, blocks SSRF targets via DNS resolution + private/loopback/link-local check), fetches with size/time caps via httpx, parses title/description/canonical with selectolax, upserts companies + inserts leads, caches raw HTML to data/raw/<domain>/<sha>.html. Verified end-to-end against stripe.com (581 KB / 1.5s) and anthropic.com (258 KB / 1.3s)
 - [ ] **7. Research agent** — Brave Search wrapper + LLM extraction → structured `{industry, size, recent_news, key_people, tech_stack}` JSON
 - [ ] **8. Qualify agent** — BANT scoring (Budget / Authority / Need / Timing) with reasoning + `qualified` boolean
 - [ ] **9. Personalize agent** — outreach email + subject with `[research.*]` citation markers; tone toggle (technical / executive / casual)
@@ -23,7 +23,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 
 ---
 
-**Currently:** finished step 5.
+**Currently:** finished step 6.
 
 ## Notes captured during planning
 
