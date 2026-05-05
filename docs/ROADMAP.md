@@ -15,7 +15,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 - [x] **7. Research agent** — `POST /research/{lead_id}`: html_to_text via selectolax, optional Brave Search (no-op when key blank), gpt-4o-mini extraction with strict JSON-schema response format. Tested against stripe.com → industry: fintech, size: 1000+, Patrick Collison identified, real news. ~$0.0007 / call (3126 in / 411 out tokens)
 - [x] **8. Qualify agent** — `POST /qualify/{lead_id}`: gpt-4o-mini scores Budget/Authority/Need/Timing 0-1 each + reasoning. Composite = mean; threshold 0.6. Tested: Stripe 0.88 qualified, Anthropic 0.38 not qualified — model differentiates from extracted research findings. ~$0.0002 / call
 - [x] **9. Personalize agent** — `POST /personalize/{lead_id}`: gpt-4o-mini drafts subject + 3-4 paragraph body with inline `[research.<field>]` citation markers. Server-side regex parses markers and splits into known/unknown lists (eval gate uses unknown=hallucination signal). Tone toggle: technical / executive / casual. Verified for Stripe in all 3 tones — all citations matched real research fields, $0.0002 / draft
-- [ ] **10. Mocked actions layer** — fake CRM card, fake calendar slot, fake email send; emitted as SSE events with believable timing
+- [x] **10. Mocked actions + workflow orchestrator** — `app/pipeline.py` runs all 8 steps end-to-end with state in workflow_runs/_steps and SSE events through the JobBroker. Endpoints: `POST /workflows/runs` (returns run_id immediately, spawns asyncio task), `GET /workflows/runs/{id}` (snapshot), `GET .../events` (SSE with replay-on-connect). Migration 0002 made workflow_runs.lead_id nullable. Mocked CRM/Calendar/Email sleep 300-700ms and write demo-mode JSON. Verified end-to-end on vercel.com — composite=0.25 (correctly not qualified), $0.0007 total.
 
 ## Frontend (3 surfaces)
 - [ ] **11. Lead page** — URL form, live workflow DAG (React Flow), three result cards (research / qualification / email draft) streaming in
@@ -23,7 +23,7 @@ the steps reuse patterns already proven in [InsightFinder](https://github.com/Fo
 
 ---
 
-**Currently:** finished step 9.
+**Currently:** finished step 10.
 
 ## Notes captured during planning
 
